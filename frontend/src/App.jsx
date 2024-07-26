@@ -1,12 +1,20 @@
-import { useState } from 'react'
+import React, { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import jsCookie from 'js-cookie';
+import HomePage from './pages/homePage.jsx';
+import Login from './pages/login.jsx';
+import SignUp from './pages/signup.jsx';
+
 
 function App() {
-  const [count, setCount] = useState(0)
+
 
   return (
-    <>
-      <div className="container text-2xl">Hello World</div>
-    </>
+    <Routes basename="/login">
+      <Route path='/' element={<HomePage />} />
+      <Route path='/login' element={<Login />} />
+      <Route path='/signup' element={<SignUp />} />
+    </Routes>
   )
 }
 
