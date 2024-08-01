@@ -1,5 +1,5 @@
 import {asyncHandler} from './../utils/asyncHandler.js';
-import {ApiError} from './../utils/ApiError.js';
+import {ApiError} from './../utils/apiError.js';
 import { User } from './../models/user.model.js';
 import {uploadOnCloudinary} from './../utils/cloudinary.js';
 import ApiResponse from '../utils/apiResponse.js';
@@ -100,6 +100,7 @@ const loginUser = asyncHandler(async (req,res) => {
     // send cookie with refresh token
 
     const {email, username, password} = req.body;
+    console.log(req.body);
     if(!username && !email) {
         throw new ApiError("400", "Please provide username or email");
     }
@@ -121,12 +122,13 @@ const loginUser = asyncHandler(async (req,res) => {
     }
 
     const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id);
+    console.log(refreshToken);
 
     const loggedInUser = User.findById(user._id).select("-password -refreshToken");
     // console.log("Logged in user", loggedInUser);
 
     const options = {
-        httpOnly: true,
+        httpOnly: false,
         secure: true
     }
 
@@ -327,7 +329,7 @@ const getUserChannelProfile = asyncHandler(async (req,res) => {
                 subscribedToCount: {
                     $size: "$subscribedTo"
                 },
-                isSubsscribed: {
+                isSubscribed: {
                     $cond: {
                         if: {
                             $in: [req.user._id, "$subscribers.subscriber"]
