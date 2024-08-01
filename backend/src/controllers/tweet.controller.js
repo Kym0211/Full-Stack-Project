@@ -1,7 +1,7 @@
 import mongoose, { isValidObjectId} from "mongoose";
-import { Tweet } from "../models/tweet.model.js";
+import { Tweets } from "../models/tweets.model.js";
 import { User } from "../models/user.model.js";
-import { ApiResponse } from "../utils/apiResponse.js";
+import ApiResponse from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 
@@ -13,13 +13,13 @@ const createTweet = asyncHandler(async (req, res) => {
         return next(new ApiError(400, "Content is required"));
     }
     
-    const tweet = new Tweet({
+    const tweet = new Tweets({
         content,
         owner: user._id,
     });
     
     await tweet.save();
-    const createdTweet = await Tweet.findById(tweet._id)
+    const createdTweet = await Tweets.findById(tweet._id)
     if(!createdTweet){
         throw new ApiError(500, "Tweet not created");
     }
@@ -32,7 +32,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
     if (!isValidObjectId(userId)) {
         throw new ApiError(400, "Invalid User Id");
     }
-    const tweets = await Tweet.find({ owner: userId });
+    const tweets = await Tweets.find({ owner: userId });
     if(!tweets){
         throw new ApiError(404, "No Tweets found");
     }
@@ -44,7 +44,7 @@ const updateTweet = asyncHandler(async (req, res) => {
     if (!isValidObjectId(tweetId)) {
         throw new ApiError(400, "Invalid Tweet Id");
     }
-    const tweet = await Tweet.findById(tweetId);
+    const tweet = await Tweets.findById(tweetId);
     if(!tweet){
         throw new ApiError(404, "Tweet not found");
     }
@@ -65,8 +65,8 @@ const deleteTweet = asyncHandler(async (req, res) => {
     if (!isValidObjectId(tweetId)) {
         throw new ApiError(400, "Invalid Tweet Id");
     }
-    const tweet = await Tweet.findByIdAndDelete(tweetId);
-    const deletedTweet = await Tweet.findById(tweetId);
+    const tweet = await Tweets.findByIdAndDelete(tweetId);
+    const deletedTweet = await Tweets.findById(tweetId);
     if(!tweet || deletedTweet){
         throw new ApiError(404, "Tweet not found or not deleted");
     }
