@@ -100,7 +100,6 @@ const loginUser = asyncHandler(async (req,res) => {
     // send cookie with refresh token
 
     const {email, username, password} = req.body;
-    console.log(req.body);
     if(!username && !email) {
         throw new ApiError("400", "Please provide username or email");
     }
@@ -122,7 +121,6 @@ const loginUser = asyncHandler(async (req,res) => {
     }
 
     const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id);
-    console.log(refreshToken);
 
     const loggedInUser = User.findById(user._id).select("-password -refreshToken");
     // console.log("Logged in user", loggedInUser);
@@ -172,13 +170,12 @@ const logoutUser = asyncHandler(async (req, res) => {
 })
 
 const refreshAccessToken = asyncHandler(async (req,res) => {
-    const incomingRefreshToken = req.cookie.refreshToken || req.body.refreshToken
+    const incomingRefreshToken = req.cookies?.refreshToken || req.body.refreshToken;
     if(!incomingRefreshToken) {
         throw new ApiError(400, 'Please provide refresh token');
     }
-
     try {
-        const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFERSH_TOKEN_SECRET);
+        const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
     
         const user = await User.findById(decodedToken?._id)
         if(!user) {
@@ -189,17 +186,17 @@ const refreshAccessToken = asyncHandler(async (req,res) => {
         } 
     
         const options = {
-            httpOnly: true,
+            httpOnly: false,
             secure: true
         }
     
-        const {accessToken, newRefreshToken} = await generateAccessAndRefereshTokens(user._id);
+        const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id);
     
         return res  
                 .status(200)
                 .cookie("accessToken", accessToken, options)
-                .cookie("refreshToken", newRefreshToken, options)
-                .json(new ApiResponse(200, "Access token refreshed successfully", {accessToken, newRefreshToken}))
+                .cookie("refreshToken", refreshToken, options)
+                .json(new ApiResponse(200, "Access token refreshed successfully", {accessToken, refreshToken}))
               
     } catch (error) {
         throw new ApiError(401, 'Unauthorized');
