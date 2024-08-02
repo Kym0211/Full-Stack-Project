@@ -16,6 +16,7 @@ const createTweet = asyncHandler(async (req, res) => {
     const tweet = new Tweets({
         content,
         owner: user._id,
+        likes
     });
     
     await tweet.save();

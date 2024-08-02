@@ -5,6 +5,10 @@ const tweetsSchema = new Schema({
         type: String,
         required: true
     },
+    likes: {
+        type: Number,
+        default: 0
+    },
     owner: {
         type: mongoose.Types.ObjectId,
         ref: "users"

@@ -9,6 +9,10 @@ const commentSchema = new Schema({
         type: mongoose.Types.ObjectId,
         ref: "videos"
     },
+    likes: {
+        type: Number,
+        default: 0
+    },
     owner: {
         type: mongoose.Types.ObjectId,
         ref: "users"

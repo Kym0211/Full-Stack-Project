@@ -22,6 +22,10 @@ const videoSchema = new Schema({
         type: Number, // cloudinary
         required: true,
     },
+    likes: {
+        type: Number,
+        default: 0,
+    },
     views: {
         type: Number,
         default: 0,
