@@ -12,15 +12,16 @@ const toggleSubscription = asyncHandler(async(req,res) => {
     const channel = await Subscription.findOne({channel: channelId, subscriber: req.user._id});
     if(channel){
         await channel.deleteOne();
-        return Apiresponse(res, 200, "Unsubscribed successfully", null)
+        return res.status(200).json(new Apiresponse(200, "Subscription removed"));
     }
     await Subscription.create({channel: channelId, subscriber: req.user._id});
+    res.status(201).json(new Apiresponse(201, "Subscription added"));
 });
 
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
-    const { channelId } = req.params;
+    const { _id } = req.user;
     
-    if (!mongoose.isValidObjectId(channelId)) {
+    if (!mongoose.isValidObjectId(_id)) {
         throw new ApiError(400, "Invalid channel id");
     }
 
@@ -28,7 +29,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
         const subscribers = await Subscription.aggregate([
             {
                 $match: {
-                    channel: mongoose.Types.ObjectId(channelId)
+                    channel:new mongoose.Types.ObjectId(_id)
                 }
             },
             {
@@ -36,7 +37,17 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
                     from: "users",
                     localField: "subscriber",
                     foreignField: "_id",
-                    as: "subscriber"
+                    as: "subscriber",
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                username: 1,
+                                email: 1,
+                                avatar: 1
+                            }
+                        }
+                    ]
                 }
             },
             {
@@ -58,14 +69,14 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 });
 
 const getSubscibedChannels = asyncHandler(async (req, res) => {
-    const { subscriberId } = req.params;
-    if(!isValidObjectId(subscriberId)) throw new ApiError(400, "Invalid subscriber id");
+    const { _id } = req.user;
+    if(!isValidObjectId(_id)) throw new ApiError(400, "Invalid subscriber id");
 
     try {
         const channels = await Subscription.aggregate([
             {
                 $match: {
-                    subscriber: mongoose.Types.ObjectId(subscriberId)
+                    subscriber:new mongoose.Types.ObjectId(_id)
                 }
             },
             {
@@ -73,7 +84,17 @@ const getSubscibedChannels = asyncHandler(async (req, res) => {
                     from: "users",
                     localField: "channel",
                     foreignField: "_id",
-                    as: "channel"
+                    as: "channel",
+                    pipeline: [
+                        {
+                            $project: {
+                                _id: 1,
+                                username: 1,
+                                email: 1,
+                                avatar: 1
+                            }
+                        }
+                    ]
                 }
             },
             {
