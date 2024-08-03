@@ -1,6 +1,7 @@
 import {asyncHandler} from './../utils/asyncHandler.js';
 import {ApiError} from './../utils/apiError.js';
 import { User } from './../models/user.model.js';
+import { Video } from './../models/video.model.js';
 import {uploadOnCloudinary} from './../utils/cloudinary.js';
 import ApiResponse from '../utils/apiResponse.js';
 import jwt from 'jsonwebtoken';
@@ -398,6 +399,11 @@ const getWatchHistory = asyncHandler(async (req, res) => {
             )
 })
 
+const getVideosForHomepage = asyncHandler(async (req, res) => {
+    const videos = await Video.find({isPublished: true}).sort({createdAt: -1}).limit(10).populate("owner", "username avatar");
+    return res.status(200).json(new ApiResponse(200, "Videos fetched successfully", videos));
+})
+
 export {
     registerUser, 
     loginUser, 
@@ -409,5 +415,6 @@ export {
     updateUserAvatar, 
     updateUserCoverImage, 
     getUserChannelProfile,
-    getWatchHistory
+    getWatchHistory,
+    getVideosForHomepage
 };

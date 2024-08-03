@@ -59,6 +59,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
             }
         },
     ])
+    // const allVideo = await Video.find({isPublished: true}).sort(sortStage).skip(pageskip).limit(parsedLimit)
     
     res.status(201).json(new ApiResponse(201, "success", allVideo))
 
@@ -83,7 +84,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Failed to upload video file or thumbnail")
     }
 
-    const duration = parseFloat(Math.floor(videoFile.duration / 60) + "." + Math.floor(videoFile.duration % 60))
+    const duration = parseFloat(Math.floor(videoFile.duration / 60) + "." + (Math.floor(videoFile.duration % 60)))
 
     const video = await Video.create({
         videoFile: videoFile.secure_url,
@@ -92,7 +93,6 @@ const publishAVideo = asyncHandler(async (req, res) => {
         description,
         duration,
         owner: userId,
-        likes,
     })
 
     const createdVideo = await Video.findById(video._id)
@@ -100,7 +100,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
         throw new ApiError(500, "Failed to create video")
     }
 
-    return res.status(201).json(new ApiResponse(201, "Video uploaded successfully",{}))
+    return res.status(201).json(new ApiResponse(201, "Video uploaded successfully",{createdVideo}))
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
