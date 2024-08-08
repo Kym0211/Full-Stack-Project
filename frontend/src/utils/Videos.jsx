@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { generateApiKey } from "generate-api-key";
 
 export default function Videos({ videos }) {
   const [loading, setLoading] = useState(true);
@@ -25,11 +26,10 @@ export default function Videos({ videos }) {
     } else if (diffInMinutes >= 1) {
       return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
     } else {
-      return `${diffInSeconds} second${diffInSeconds > 1 ? "s" : ""} ago`;
+      return `${diffInSeconds} second${diffInSeconds !== 1 ? "s" : ""} ago`;
     }
   }
 
-  // Function to format duration from seconds to "minutes:seconds"
   function formatDuration(duration) {
     const mins = Math.floor(duration);
     const secs = Math.floor((duration - mins) * 60);
@@ -37,24 +37,21 @@ export default function Videos({ videos }) {
   }
 
   return (
-    <div className="p-4 bg-gray-900 min-h-screen">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {loading ? (
-        <p className="text-center text-white">Loading...</p>
+        <div className="text-center col-span-full">Loading...</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {videos.map((video) => (
-            <div
-              key={video._id}
-              className="bg-gray-800 text-white rounded-lg overflow-hidden shadow-lg transition-transform transform hover:scale-105"
-            >
-              <div className="relative">
-                {/* Video Thumbnail */}
-                <img
-                  src={video.thumbnail || "path/to/default-thumbnail.jpg"}
-                  alt={video.title}
-                  className="w-full h-40 object-cover"
-                />
-                {/* Play Icon Overlay */}
+        videos.map((video) => (
+          <div
+            key={generateApiKey(10)}
+            className="bg-gray-800 rounded-lg overflow-hidden shadow-lg"
+          >
+            <div className="relative">
+              <img
+                src={video.thumbnail}
+                alt={video.title}
+                className="w-full h-40 object-cover"
+              />
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
                   <button
                     className="bg-black bg-opacity-50 text-white rounded-full p-3"
@@ -76,43 +73,20 @@ export default function Videos({ videos }) {
                     </svg>
                   </button>
                 </div>
-                {/* Video Duration Overlay */}
-                <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white text-xs px-2 py-1 rounded">
-                  {formatDuration(video.duration)}
-                </div>
-              </div>
-              <div className="p-4">
-                <div className="flex items-start space-x-3">
-                  <img
-                    src={video.owner_details.avatar}
-                    alt={video.owner_details.username}
-                    className="w-12 h-12 rounded-full border-2 border-gray-600 object-cover"
-                  />
-                  <div className="flex-1 text-left">
-                    <h1 className="text-lg font-semibold line-clamp-2">
-                      {video.title}
-                    </h1>
-                    <div className="flex flex-col mt-1 space-y-1 text-sm text-gray-400">
-                      <p className="flex items-center space-x-1">
-                        <span className="font-medium">
-                          {video.owner_details.username}
-                        </span>
-                        <span className="text-xs bg-gray-700 px-2 py-0.5 rounded-full">
-                          Creator
-                        </span>
-                      </p>
-                      <div className="flex space-x-2">
-                        <p>{calculateDateDifference(video.createdAt)}</p>
-                        <span>•</span>
-                        <p>{video.views.toLocaleString()} views</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <span className="absolute bottom-1 right-1 bg-black text-white text-xs px-1 py-0.5 rounded opacity-75">
+                {formatDuration(video.duration)}
+              </span>
+            </div>
+            <div className="p-4">
+              <h3 className="text-lg font-semibold">{video.title}</h3>
+              <p className="text-sm text-gray-400">{video.channelName}</p>
+              <div className="text-sm text-gray-500">
+                <span>{video.views} views</span> •{" "}
+                <span>{calculateDateDifference(video.createdAt)}</span>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))
       )}
     </div>
   );

@@ -58,7 +58,7 @@ export default function SignUp() {
     };
 
     return (
-        <div className="w-screen h-screen bg-gray-800 flex items-center justify-center">
+        <div className="w-screen min-h-screen h-inherit bg-gray-800 flex items-center justify-center">
             <div className="bg-gray-200 p-8 rounded-lg shadow-lg w-full max-w-md">
                 <h1 className="text-4xl text-center mb-12">Register User</h1>
                 <form onSubmit={handleSubmit}>

@@ -32,10 +32,10 @@ const userSchema = new Schema({
     coverimage: {
         type: String, // cloudinary url\
     },
-    watchHistory: {
+    watchHistory: [{
         type: Schema.Types.ObjectId,
         ref: "Video"
-    },
+    }],
     password: {
         type: String,
         required: [true, 'Password is required'],
@@ -66,7 +66,7 @@ userSchema.methods.generateAccessToken = function() {
     }, 
     process.env.ACCESS_TOKEN_SECRET, 
     {
-        expiresIn: '15m'
+        expiresIn: '30min'
     }
     )
 }
@@ -76,7 +76,7 @@ userSchema.methods.generateRefreshToken = function() {
     }, 
     process.env.REFRESH_TOKEN_SECRET, 
     {
-        expiresIn: '7d'
+        expiresIn: '2h'
     })
 }
 

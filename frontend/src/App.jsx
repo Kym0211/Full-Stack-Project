@@ -4,16 +4,19 @@ import jsCookie from 'js-cookie';
 import HomePage from './pages/homePage.jsx';
 import Login from './pages/login.jsx';
 import SignUp from './pages/signup.jsx';
+import HistoryPage from './pages/history.jsx';
 
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
 
   return (
-    <Routes basename="/login">
-      <Route path='/' element={<HomePage />} />
-      <Route path='/login' element={<Login />} />
-      <Route path='/signup' element={<SignUp />} />
+    <Routes basename="/">
+      <Route path='/' element={<HomePage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
+      <Route path='/login' element={<Login isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
+      <Route path='/signup' element={<SignUp isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
+      <Route path='/history' element={<HistoryPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
     </Routes>
   )
 }

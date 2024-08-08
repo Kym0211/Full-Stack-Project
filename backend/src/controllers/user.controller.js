@@ -110,15 +110,21 @@ const loginUser = asyncHandler(async (req,res) => {
     const loggedInUser = User.findById(user._id).select("-password -refreshToken");
     // console.log("Logged in user", loggedInUser);
 
-    const options = {
+    const optionsForAccessToken = {
         httpOnly: false,
-        secure: true
+        secure: true,
+        maxAge: 1800000
+    }
+    const optionsForRefreshToken = {
+        httpOnly: false,
+        secure: true,
+        maxAge: 7200000
     }
 
     return res
     .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    .cookie("accessToken", accessToken, optionsForAccessToken)
+    .cookie("refreshToken", refreshToken, optionsForRefreshToken)
     .json(
         new ApiResponse(
             200, 
@@ -144,7 +150,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     );
 
     const options = {
-        httpOnly: true,
+        httpOnly: false,
         secure: true,
     }
     return res  
@@ -156,11 +162,13 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 const refreshAccessToken = asyncHandler(async (req,res) => {
     const incomingRefreshToken = req.cookies?.refreshToken || req.body.refreshToken;
+    console.log(incomingRefreshToken);
     if(!incomingRefreshToken) {
         throw new ApiError(400, 'Please provide refresh token');
     }
     try {
         const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+        console.log(decodedToken);
     
         const user = await User.findById(decodedToken?._id)
         if(!user) {
@@ -170,17 +178,23 @@ const refreshAccessToken = asyncHandler(async (req,res) => {
             throw new ApiError(401, 'Invalid refresh token');
         } 
     
-        const options = {
+        const optionsForAccessToken = {
             httpOnly: false,
-            secure: true
+            secure: true,
+            maxAge: 1800000
+        }
+        const optionsForRefreshToken = {
+            httpOnly: false,
+            secure: true,
+            maxAge: 7200000
         }
     
         const {accessToken, refreshToken} = await generateAccessAndRefereshTokens(user._id);
     
         return res  
                 .status(200)
-                .cookie("accessToken", accessToken, options)
-                .cookie("refreshToken", refreshToken, options)
+                .cookie("accessToken", accessToken, optionsForAccessToken)
+                .cookie("refreshToken", refreshToken, optionsForRefreshToken)
                 .json(new ApiResponse(200, "Access token refreshed successfully", {accessToken, refreshToken}))
               
     } catch (error) {
@@ -404,6 +418,48 @@ const getVideosForHomepage = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, "Videos fetched successfully", videos));
 })
 
+const saveWatchHistory = asyncHandler(async (req, res) => {
+    const {videoId} = req.params;
+    const user = await User.findById(req.user._id);
+    if(!user) {
+        throw new ApiError(404, 'User not found');
+    }
+
+    const video = await Video.findById(videoId);
+    if(!video) {
+        throw new ApiError(404, 'Video not found');
+    }
+
+    if(user.watchHistory.includes(videoId)) {
+        return res.status(200).json(new ApiResponse(200, "Watch history updated successfully", {}));
+    }
+
+    user.watchHistory.push(videoId);
+    await user.save({validateBeforeSave: false});
+    return res.status(200).json(new ApiResponse(200, "Watch history updated successfully", {}));
+})
+
+const removeVideoFromWatchHistory = asyncHandler(async (req, res) => {
+    console.log(req.params)
+    const {videoId} = req.params;
+    console.log("Video ID", videoId);
+    const user = await User.findById(req.user._id);
+    if(!user) {
+        throw new ApiError(404, 'User not found');
+    }
+
+    const video = await Video.findById(videoId);
+    if(!video) {
+        throw new ApiError(404, 'Video not found');
+    }
+    console.log(video)
+
+    user.watchHistory = user.watchHistory.filter((id) => id === videoId);
+    await user.save({validateBeforeSave: false});
+    const updatedWatchHistory = await User.findById(req.user._id).select("watchHistory");
+    return res.status(200).json(new ApiResponse(200, "Video removed from watch history successfully", {updatedWatchHistory}));
+})
+
 export {
     registerUser, 
     loginUser, 
@@ -416,5 +472,7 @@ export {
     updateUserCoverImage, 
     getUserChannelProfile,
     getWatchHistory,
-    getVideosForHomepage
+    getVideosForHomepage,
+    saveWatchHistory,
+    removeVideoFromWatchHistory
 };
