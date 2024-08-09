@@ -55,7 +55,34 @@ const getChannelVideos = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Invalid user id");
     }
 
-    const videos = await Video.find({ owner: _id });
+    const videos = await Video.aggregate([
+        {
+            $match: { owner: new mongoose.Types.ObjectId(_id) }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "ownerDetails",
+                pipeline: [
+                    {
+                        $project: {
+                            username: 1,
+                            avatar: 1
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $addFields: {
+                ownerDetails: {
+                    $arrayElemAt: ["$ownerDetails", 0]
+                }
+            }
+        },
+    ])
     if(!videos){
         return res.status(404).json(new ApiResponse(404, "No videos found"));
     }

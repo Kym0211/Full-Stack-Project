@@ -19,6 +19,7 @@ export default function Header({isAuthenticated, setIsAuthenticated, toggleSideb
 
   const handleLogOut = async () => {
     await axios.post("/api/v1/users/logout").catch((e) => console.log(e));
+    jsCookie.remove("authenticated");
     setIsAuthenticated(false);
   };
 

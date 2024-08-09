@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import jsCookie from "js-cookie";
 import SideBar from "../utils/sideBar";
 import Header from "../utils/Header";
 import { FaYoutube } from "react-icons/fa";
@@ -13,12 +12,11 @@ export default function HomePage({ isAuthenticated, setIsAuthenticated }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [videos, setVideos] = useState([]);
   
-
   
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const res = await axios.get("/api/v1/videos");
+        const res = await axios.get("/api/v1/videos/");
         setVideos(res.data.data);
       } catch (error) {
         console.error("Error fetching videos:", error);
