@@ -31,6 +31,10 @@ export default function SideBar({ sidebarOpen }) {
     navigate("/my-content");
   }
 
+  const playlistButton = () => {
+    navigate("/playlist");
+  }
+
   return (
     <aside
       className={`fixed top-16 left-0 h-[calc(100%-64px)] bg-gray-900 transform transition-transform duration-300 z-20 ${
@@ -64,7 +68,7 @@ export default function SideBar({ sidebarOpen }) {
             </button>
           </li>
           <li>
-            <button className={buttonStyle}>
+            <button className={buttonStyle} onClick={playlistButton}>
               <RiPlayListLine size={24} className="mr-3" />
               {sidebarOpen && "Collections"}
             </button>

@@ -31,7 +31,30 @@ export default function MyContentPage({ isAuthenticated }) {
     publishedContent = myContent.filter((content) => content.isPublished);
   }
 
-  console.log("My content:", publishedContent);
+  if(publishedContent.length === 0) {
+    return (
+      <div className="w-screen min-h-screen h-inherit bg-gray-900 text-white flex flex-col">
+        <header className="fixed top-0 left-0 right-0 flex items-center justify-between px-4 py-2 bg-gray-900 shadow-md z-30 border-b border-gray-800">
+          <div className="flex items-center space-x-4">
+            <button onClick={toggleSidebar} className="focus:outline-none">
+              <RiMenu2Line size={28} className="text-white" />
+            </button>
+            <div className="flex items-center space-x-1">
+              <FaYoutube size={28} className="text-red-600" />
+              <span className="text-lg text-white font-semibold hidden sm:inline">
+                YouTube
+              </span>
+            </div>
+          </div>
+        </header>
+        <SideBar sidebarOpen={sidebarOpen} />
+        <main className="ml-20 mt-16 p-4">
+          <h1 className="text-2xl font-bold mb-4">No content available.</h1>
+        </main>
+      </div>
+    );
+  }
+
 
   function calculateDateDifference(dateString) {
     const inputDate = new Date(dateString);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaHeart, FaYoutube } from "react-icons/fa";
 import { RiMenu2Line } from "react-icons/ri";
-import SideBar from "../utils/sideBar"; // Assume you have a sidebar component
+import SideBar from "../utils/sideBar"; 
 
 export default function LikePage({ isAuthenticated }) {
   const [likes, setLikes] = useState([]);
@@ -44,7 +44,6 @@ export default function LikePage({ isAuthenticated }) {
     const fetchLikes = async () => {
       try {
         const response = await axios.get("/api/v1/likes/videos");
-        console.log("Likes response:", response.data);
         setLikes(response.data.message.likedVideos);
       } catch (error) {
         console.error("Error fetching likes:", error);
@@ -64,6 +63,7 @@ export default function LikePage({ isAuthenticated }) {
             const videoExists = videos.some((video) => video[0]._id === like.video);
             if (!videoExists) {
               const res = await axios.get(`/api/v1/videos/${like.video}`);
+              console.log("Video data:", res.data.data.video);
               return res.data.data.video;
             }
           }
@@ -89,9 +89,6 @@ export default function LikePage({ isAuthenticated }) {
     }
   }, [likes]);
   
-  
-
-  console.log(videos);
 
   function calculateDateDifference(dateString) {
     const inputDate = new Date(dateString);
@@ -166,8 +163,8 @@ export default function LikePage({ isAuthenticated }) {
                     {formatDuration(video[0].duration)}
                   </span>
                   <img
-                    src={video[0].ownerDetails.avatar}
-                    alt={video[0].ownerDetails.username}
+                    src={video[0].owner_details.avatar}
+                    alt={video[0].owner_details.username}
                     className="w-10 h-10 rounded-full"
                   />
                 </div>

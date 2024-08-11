@@ -11,6 +11,7 @@ export default function HomePage({ isAuthenticated, setIsAuthenticated }) {
   const [test, setTest] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [videos, setVideos] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
   
   
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function HomePage({ isAuthenticated, setIsAuthenticated }) {
   return (
     <div className="w-screen min-h-screen h-inherit bg-gray-900 text-white flex flex-col">
       {/* Header */}
-      <Header toggleSidebar={toggleSidebar} isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
+      <Header toggleSidebar={toggleSidebar} isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} setPlaylists={setPlaylists} />
 
       {/* Sidebar */}
       <SideBar sidebarOpen={sidebarOpen} />

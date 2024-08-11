@@ -42,10 +42,12 @@ export default function Login({ isAuthenticated, setIsAuthenticated }) {
 
         setTimeout(() => {
             setIsAuthenticated(false);
+            jsCookie.remove("authenticated");
             alert("Your session is expired. Please login again");
             try {
                 axios.get('/api/v1/users/refreshToken').then((res) => {
                     setIsAuthenticated(true);
+                    jsCookie.set("authenticated", true);
                 })
             } catch (error) {
                 console.error("Error refreshing token:", error);
