@@ -70,13 +70,13 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
 
 const getSubscibedChannels = asyncHandler(async (req, res) => {
     const { _id } = req.user;
-    if(!isValidObjectId(_id)) throw new ApiError(400, "Invalid subscriber id");
+    if (!mongoose.isValidObjectId(_id)) throw new ApiError(400, "Invalid subscriber id");
 
     try {
         const channels = await Subscription.aggregate([
             {
                 $match: {
-                    subscriber:new mongoose.Types.ObjectId(_id)
+                    subscriber: new mongoose.Types.ObjectId(_id)
                 }
             },
             {
@@ -98,17 +98,64 @@ const getSubscibedChannels = asyncHandler(async (req, res) => {
                 }
             },
             {
-                $unwind: "$channel"
+                $unwind: "$channel" // Flatten the channel array
+            },
+            {
+                $lookup: {
+                    from: "subscriptions",
+                    localField: "channel._id",
+                    foreignField: "channel",
+                    as: "subscriberCount"
+                }
+            },
+            {
+                $addFields: {
+                    subscriberCount: { $size: "$subscriberCount" }
+                }
+            },
+            {
+                $lookup: {
+                    from: "videos",
+                    let: { channelId: "$channel._id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $eq: ["$owner", "$$channelId"]
+                                }
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                title: 1,
+                                thumbnail: 1,
+                                views: 1,
+                                createdAt: 1,
+                                duration: 1
+                            }
+                        },
+                        {
+                            $sort: { createdAt: -1 } // Sort by newest first
+                        },
+                        {
+                            $limit: 2 // Limit to the 2 most recent videos
+                        }
+                    ],
+                    as: "videos"
+                }
             },
             {
                 $project: {
                     _id: 0,
-                    channel: 1
+                    channel: 1,
+                    subscriberCount: 1,
+                    videos: 1
                 }
             }
         ]);
 
-        res.status(200).json(new Apiresponse(200, "Channels fetched successfully", channels));
+        res.status(200).json(new Apiresponse(200, "Channels and their videos fetched successfully", channels));
     } catch (error) {
         console.error(error);
         res.status(500).json(new Apiresponse(500, "Internal server error"));

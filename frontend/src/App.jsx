@@ -7,11 +7,16 @@ import HistoryPage from './pages/history.jsx';
 import LikePage from './pages/likePage.jsx';
 import MyContentPage from './pages/MyContentPage.jsx';
 import PlaylistPage from './pages/PlaylistPage.jsx';
+import SubscriptionsPage from './pages/SubscriptionsPage.jsx';
 import jsCookie from 'js-cookie';
 
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(jsCookie.get('authenticated') ? true : false);
+  const [isAuthenticated, setIsAuthenticated] = useState(jsCookie.get('accessToken') ? true : false);
+  if(!jsCookie.get('accessToken') && isAuthenticated === true) {
+    setIsAuthenticated(false);
+    jsCookie.remove('authenticated');
+  }
   if(isAuthenticated) {
     jsCookie.set('authenticated', true);
   }
@@ -25,6 +30,7 @@ function App() {
       <Route path='/liked-videos' element={<LikePage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
       <Route path='/my-content' element={<MyContentPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
       <Route path='/playlist' element={<PlaylistPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
+      <Route path='/subscriptions' element={<SubscriptionsPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
     </Routes>
   )
 }

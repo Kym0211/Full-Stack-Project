@@ -35,6 +35,10 @@ export default function SideBar({ sidebarOpen }) {
     navigate("/playlist");
   }
 
+  const subscriptionButton = () =>{
+    navigate("/subscriptions")
+  }
+
   return (
     <aside
       className={`fixed top-16 left-0 h-[calc(100%-64px)] bg-gray-900 transform transition-transform duration-300 z-20 ${
@@ -75,8 +79,8 @@ export default function SideBar({ sidebarOpen }) {
           </li>
           <li>
             <button className={buttonStyle}>
-              <RiUserLine size={24} className="mr-3" />
-              {sidebarOpen && "Subscribers"}
+              <RiUserLine size={24} className="mr-3" onClick={subscriptionButton} />
+              {sidebarOpen && "Subscriptions"}
             </button>
           </li>
         </ul>
