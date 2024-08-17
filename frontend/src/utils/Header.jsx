@@ -46,6 +46,10 @@ export default function Header({ isAuthenticated, setIsAuthenticated, toggleSide
     setShowDropdown(!showDropdown);
   };
 
+  const dashboardButton = () => {
+    navigate("/dashboard")
+  }
+
   const handleSubmitPlaylist = async () => {
     try {
       const res = await axios.post("/api/v1/playlist/", {

@@ -246,7 +246,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 })
 
 const updateUserAvatar = asyncHandler( async(req,res) => {
-    // console.log(req.file);
+    console.log(req.file);
     const avatarLocalPath = req.file?.path;
     if(!avatarLocalPath) {
         throw new ApiError(400, 'Please provide avatar image');

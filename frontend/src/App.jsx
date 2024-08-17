@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import HomePage from './pages/homePage.jsx';
-import Login from './pages/login.jsx';
-import SignUp from './pages/signup.jsx';
-import HistoryPage from './pages/history.jsx';
+import Login from './pages/loginPage.jsx';
+import SignUp from './pages/signupPage.jsx';
+import HistoryPage from './pages/historyPage.jsx';
 import LikePage from './pages/likePage.jsx';
 import MyContentPage from './pages/MyContentPage.jsx';
 import PlaylistPage from './pages/PlaylistPage.jsx';
 import SubscriptionsPage from './pages/SubscriptionsPage.jsx';
+import SettingsPage from './pages/settingsPage.jsx';
+import DashboardPage from './pages/dashboardPage.jsx';
 import jsCookie from 'js-cookie';
 
 
@@ -31,6 +33,8 @@ function App() {
       <Route path='/my-content' element={<MyContentPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
       <Route path='/playlist' element={<PlaylistPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
       <Route path='/subscriptions' element={<SubscriptionsPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
+      <Route path='/settings' element={<SettingsPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
+      <Route path='/dashboard' element={<DashboardPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
     </Routes>
   )
 }

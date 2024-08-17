@@ -39,6 +39,10 @@ export default function SideBar({ sidebarOpen }) {
     navigate("/subscriptions")
   }
 
+  const settingsButton = () => {
+    navigate("/settings")
+  }
+
   return (
     <aside
       className={`fixed top-16 left-0 h-[calc(100%-64px)] bg-gray-900 transform transition-transform duration-300 z-20 ${
@@ -87,7 +91,7 @@ export default function SideBar({ sidebarOpen }) {
       </div>
       <div className="flex-shrink-0 pb-4">
         <button className={buttonStyle}>
-          <RiSettings3Line size={24} className="mr-3" />
+          <RiSettings3Line size={24} className="mr-3" onClick={settingsButton}/>
           {sidebarOpen && "Settings"}
         </button>
       </div>
