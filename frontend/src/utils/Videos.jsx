@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { generateApiKey } from "generate-api-key";
+import { useNavigate } from "react-router-dom";
 
 export default function Videos({ videos }) {
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (videos.length !== 0) {
@@ -36,6 +37,10 @@ export default function Videos({ videos }) {
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   }
 
+  const playVideo = (videoId) => {
+    navigate(`/video/${videoId}`);
+  };
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {loading ? (
@@ -43,36 +48,34 @@ export default function Videos({ videos }) {
       ) : (
         videos.map((video) => (
           <div
-            key={generateApiKey(10)}
+            key={video._id} // Use video.id as the unique key
             className="bg-gray-800 rounded-lg overflow-hidden shadow-lg"
+            onClick={() => playVideo(video._id)} // Correctly handle onClick event
           >
-            <div className="relative">
+            <div className="relative cursor-pointer">
               <img
                 src={video.thumbnail}
                 alt={video.title}
                 className="w-full h-40 object-cover"
               />
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-                  <button
-                    className="bg-black bg-opacity-50 text-white rounded-full p-3"
-                    onClick={() => alert(`Play video: ${video.title}`)}
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                <button className="bg-black bg-opacity-50 text-white rounded-full p-3">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-8 w-8"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M14.752 11.168l-6.525-3.763A1 1 0 007 8.192v7.616a1 1 0 001.227.966l6.525-1.684a1 1 0 00.746-.966V12a1 1 0 00-.746-.832z"
-                      />
-                    </svg>
-                  </button>
-                </div>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M14.752 11.168l-6.525-3.763A1 1 0 007 8.192v7.616a1 1 0 001.227.966l6.525-1.684a1 1 0 00.746-.966V12a1 1 0 00-.746-.832z"
+                    />
+                  </svg>
+                </button>
+              </div>
               <span className="absolute bottom-1 right-1 bg-black text-white text-xs px-1 py-0.5 rounded opacity-75">
                 {formatDuration(video.duration)}
               </span>

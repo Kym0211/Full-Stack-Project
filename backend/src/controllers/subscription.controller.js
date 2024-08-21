@@ -68,7 +68,7 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     }
 });
 
-const getSubscibedChannels = asyncHandler(async (req, res) => {
+const getSubscribedChannels = asyncHandler(async (req, res) => {
     const { _id } = req.user;
     if (!mongoose.isValidObjectId(_id)) throw new ApiError(400, "Invalid subscriber id");
 
@@ -162,4 +162,4 @@ const getSubscibedChannels = asyncHandler(async (req, res) => {
     }
 });
 
-export { toggleSubscription, getUserChannelSubscribers, getSubscibedChannels };
+export { toggleSubscription, getUserChannelSubscribers, getSubscribedChannels };

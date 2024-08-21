@@ -88,7 +88,6 @@ export default function PlaylistPage({ isAuthenticated }) {
     }
   };
 
-
   const handleBackClick = () => {
     setSelectedPlaylist(null);
   };

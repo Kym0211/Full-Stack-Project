@@ -2,17 +2,30 @@ import mongoose,{ isValidObjectId } from "mongoose";
 import { Comment } from "../models/comments.model.js";
 import ApiResponse from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/apiError.js";
 
 const getVideoComments = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
-    if(!isValidObjectId(videoId)){
+
+    if (!isValidObjectId(videoId)) {
         throw new ApiError(400, "Invalid video id");
     }
 
-    const comments = await Comment.find({ video: videoId })
+    // Find comments associated with the video
+    let comments = await Comment.find({ video: videoId });
+
+    // Populate the owner details for each comment
+    comments = await Promise.all(
+        comments.map(async (comment) => {
+            const owner = await User.findById(comment.owner).select('username avatar');
+            return { ...comment._doc, owner };
+        })
+    );
+
     return res.status(200).json(new ApiResponse(200, "Comments found", comments));
-})
+});
+
 
 const addComment = asyncHandler(async (req, res) => {
     const { videoId } = req.params;

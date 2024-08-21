@@ -10,6 +10,7 @@ import PlaylistPage from './pages/PlaylistPage.jsx';
 import SubscriptionsPage from './pages/SubscriptionsPage.jsx';
 import SettingsPage from './pages/settingsPage.jsx';
 import DashboardPage from './pages/dashboardPage.jsx';
+import VideoPage from './pages/videoPage.jsx';
 import jsCookie from 'js-cookie';
 
 
@@ -17,12 +18,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(jsCookie.get('accessToken') ? true : false);
   if(!jsCookie.get('accessToken') && isAuthenticated === true) {
     setIsAuthenticated(false);
-    jsCookie.remove('authenticated');
   }
-  if(isAuthenticated) {
-    jsCookie.set('authenticated', true);
-  }
-
   return (
     <Routes basename="/">
       <Route path='/' element={<HomePage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
@@ -35,6 +31,7 @@ function App() {
       <Route path='/subscriptions' element={<SubscriptionsPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
       <Route path='/settings' element={<SettingsPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
       <Route path='/dashboard' element={<DashboardPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
+      <Route path='/video/:videoId' element={<VideoPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
     </Routes>
   )
 }
