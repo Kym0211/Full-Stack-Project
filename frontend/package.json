@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.1.2",
+    "@heroicons/react": "^1.0.6",
     "axios": "^1.7.2",
     "generate-api-key": "^1.0.2",
     "js-cookie": "^3.0.5",

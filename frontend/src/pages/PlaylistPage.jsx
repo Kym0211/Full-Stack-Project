@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import SideBar from "../utils/sideBar";
 import { FaYoutube } from "react-icons/fa";
 import { RiMenu2Line } from "react-icons/ri";
 import { IoArrowBack } from "react-icons/io5"
+import { calculateDateDifference, formatDuration } from "../functions/Functions";
 
 export default function PlaylistPage({ isAuthenticated }) {
   const [playlists, setPlaylists] = useState([]);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [videos, setVideos] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPlaylists = async () => {
@@ -45,32 +49,6 @@ export default function PlaylistPage({ isAuthenticated }) {
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
-
-  function calculateDateDifference(dateString) {
-    const inputDate = new Date(dateString);
-    const today = new Date();
-    const diffInMillis = today - inputDate;
-    const diffInDays = Math.floor(diffInMillis / (1000 * 60 * 60 * 24));
-    const diffInHours = Math.floor(diffInMillis / (1000 * 60 * 60));
-    const diffInMinutes = Math.floor(diffInMillis / (1000 * 60));
-    const diffInSeconds = Math.floor(diffInMillis / 1000);
-
-    if (diffInDays >= 1) {
-      return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
-    } else if (diffInHours >= 1) {
-      return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
-    } else if (diffInMinutes >= 1) {
-      return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
-    } else {
-      return `${diffInSeconds} second${diffInSeconds !== 1 ? "s" : ""} ago`;
-    }
-  }
-
-  function formatDuration(duration) {
-    const mins = Math.floor(duration);
-    const secs = Math.floor((duration - mins) * 60);
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
-  }
 
   const deletePlaylistItem = async (playlistID, videoId) => {
     try {
@@ -111,6 +89,12 @@ export default function PlaylistPage({ isAuthenticated }) {
     }
   };
 
+  const Navigate = async (videoId) => {
+    const res = await axios.post(`/api/v1/users/saveHistory/${videoId}`);
+    const response = await axios.patch(`/api/v1/videos/views/${videoId}`);
+    navigate(`/video/${videoId}`);
+  }
+
   return (
     <div className="w-screen min-h-screen bg-gray-900 text-white flex flex-col">
       <header className="fixed top-0 left-0 right-0 flex items-center justify-between px-4 py-2 bg-gray-900 shadow-md z-30 border-b border-gray-800">
@@ -143,20 +127,37 @@ export default function PlaylistPage({ isAuthenticated }) {
             {videos.length === 0 ? (
               <p>No videos found in this playlist.</p>
             ) : (
-              <div className="grid grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 gap-4 hover:cursor-pointer" >
                 {videos.map((video) => (
-                  <li
+                  <div
                     key={video[0]._id} 
                     className="flex items-start bg-gray-800 p-4 rounded-lg shadow-lg relative"
+                    onClick={() => Navigate(video[0]._id)}
                   >
                     <img
                       src={video[0].thumbnail} 
                       alt={video[0].title}
                       className="w-48 h-28 object-cover mr-4 rounded"
                     />
+                    <button className="bg-black opacity-0 hover:opacity-100 absolute top-11 left-20 bg-opacity-50 text-white rounded-full p-3">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-8 w-8"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M14.752 11.168l-6.525-3.763A1 1 0 007 8.192v7.616a1 1 0 001.227.966l6.525-1.684a1 1 0 00.746-.966V12a1 1 0 00-.746-.832z"
+                        />
+                      </svg>
+                    </button>
                     <div className="flex-1">
                       <h3 className="text-lg font-semibold">{video[0].title}</h3>
-                      <p className="text-sm text-gray-400">{video[0].channelName}</p>
+                      <p className="text-sm text-gray-400">{video[0].owner_details.username}</p>
                       <div className="text-sm text-gray-500">
                         <span>{video[0].views} views</span> •{" "}
                         <span>{calculateDateDifference(video[0].createdAt)}</span>
@@ -178,7 +179,7 @@ export default function PlaylistPage({ isAuthenticated }) {
                         className="w-10 h-10 rounded-full"
                       />
                     </div>
-                  </li>
+                  </div>
                 ))}
               </div>
             )}

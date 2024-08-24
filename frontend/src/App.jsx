@@ -11,6 +11,8 @@ import SubscriptionsPage from './pages/SubscriptionsPage.jsx';
 import SettingsPage from './pages/settingsPage.jsx';
 import DashboardPage from './pages/dashboardPage.jsx';
 import VideoPage from './pages/videoPage.jsx';
+import CreateVideo from './pages/createVideoPage.jsx';
+import Posts from './pages/postsPage.jsx';
 import jsCookie from 'js-cookie';
 
 
@@ -29,9 +31,11 @@ function App() {
       <Route path='/my-content' element={<MyContentPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
       <Route path='/playlist' element={<PlaylistPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
       <Route path='/subscriptions' element={<SubscriptionsPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
+      <Route path='/posts' element={<Posts isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
       <Route path='/settings' element={<SettingsPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
       <Route path='/dashboard' element={<DashboardPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
       <Route path='/video/:videoId' element={<VideoPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
+      <Route path='/create-video' element={<CreateVideo isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
     </Routes>
   )
 }

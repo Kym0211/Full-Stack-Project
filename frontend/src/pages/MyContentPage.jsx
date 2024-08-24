@@ -3,10 +3,14 @@ import SideBar from "../utils/sideBar";
 import axios from "axios";
 import { FaYoutube } from "react-icons/fa";
 import { RiMenu2Line } from "react-icons/ri";
+import { calculateDateDifference, formatDuration } from "../functions/Functions";
+import { useNavigate } from "react-router-dom";
 
 export default function MyContentPage({ isAuthenticated }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [myContent, setMyContent] = useState([]);
+
+  const navigate = useNavigate();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -16,7 +20,6 @@ export default function MyContentPage({ isAuthenticated }) {
     const fetch = async () => {
       try {
         const fetchmyContent = await axios.get("/api/v1/dashboard/videos");
-        console.log("My content response:", fetchmyContent.data);
         setMyContent(fetchmyContent.data.data);
       } catch (error) {
         console.error("Error fetching my content:", error);
@@ -55,31 +58,10 @@ export default function MyContentPage({ isAuthenticated }) {
     );
   }
 
-
-  function calculateDateDifference(dateString) {
-    const inputDate = new Date(dateString);
-    const today = new Date();
-    const diffInMillis = today - inputDate;
-    const diffInDays = Math.floor(diffInMillis / (1000 * 60 * 60 * 24));
-    const diffInHours = Math.floor(diffInMillis / (1000 * 60 * 60));
-    const diffInMinutes = Math.floor(diffInMillis / (1000 * 60));
-    const diffInSeconds = Math.floor(diffInMillis / 1000);
-
-    if (diffInDays >= 1) {
-      return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
-    } else if (diffInHours >= 1) {
-      return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
-    } else if (diffInMinutes >= 1) {
-      return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
-    } else {
-      return `${diffInSeconds} second${diffInSeconds !== 1 ? "s" : ""} ago`;
-    }
-  }
-
-  function formatDuration(duration) {
-    const mins = Math.floor(duration);
-    const secs = Math.floor((duration - mins) * 60);
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  const playVideo = async (videoId) => {
+    const res = await axios.post(`/api/v1/users/saveHistory/${videoId}`);
+    const response = await axios.patch(`/api/v1/videos/views/${videoId}`);
+    navigate(`/video/${videoId}`);
   }
 
   return (
@@ -104,17 +86,34 @@ export default function MyContentPage({ isAuthenticated }) {
             You need to log in to see your content.
           </h1>
         ) : (
-          <ul className="space-y-4">
+          <div className="space-y-4">
             {publishedContent.map((video) => (
-              <li
+              <div
                 key={video._id}
-                className="flex items-start bg-gray-800 p-4 rounded-lg shadow-lg"
+                className="flex relative hover:cursor-pointer items-start bg-gray-800 p-4 rounded-lg shadow-lg"
+                onClick={() => playVideo(video._id)}
               >
                 <img
                   src={video.thumbnail}
                   alt={video.title}
                   className="w-48 h-28 object-cover mr-4 rounded"
                 />
+                <button className="bg-black opacity-0 hover:opacity-100 absolute top-11 left-20 bg-opacity-50 text-white rounded-full p-3">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-8 w-8"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M14.752 11.168l-6.525-3.763A1 1 0 007 8.192v7.616a1 1 0 001.227.966l6.525-1.684a1 1 0 00.746-.966V12a1 1 0 00-.746-.832z"
+                        />
+                      </svg>
+                    </button>
                 <div className="flex-1 flex flex-col">
                   <h3 className="text-lg font-semibold">{video.title}</h3>
                   <p className="text-sm text-gray-400">
@@ -135,9 +134,9 @@ export default function MyContentPage({ isAuthenticated }) {
                     className="w-10 h-10 rounded-full"
                   />
                 </div>
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </main>
     </div>

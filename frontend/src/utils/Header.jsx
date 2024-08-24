@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import jsCookie from "js-cookie";
-import axios from "axios";
 import { RiMenu2Line, RiSearchLine } from "react-icons/ri";
 import { FaYoutube } from "react-icons/fa";
+import axios from "axios";
 
-export default function Header({ isAuthenticated, setIsAuthenticated, toggleSidebar, setPlaylists }) {
+export default function Header({ isAuthenticated, setIsAuthenticated, toggleSidebar, videos, setVideos, resetVideos }) {
   const [showDropdown, setShowDropdown] = useState(false);
-  const [showModal, setShowModal] = useState(false); // State for modal visibility
+  const [showModal, setShowModal] = useState(false);
   const [playlistName, setPlaylistName] = useState("");
   const [playlistDescription, setPlaylistDescription] = useState("");
+  const [searchQuery, setSearchQuery] = useState(""); 
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
@@ -24,7 +25,6 @@ export default function Header({ isAuthenticated, setIsAuthenticated, toggleSide
   }, []);
 
   const handleLogOut = async () => {
-    await axios.post("/api/v1/users/logout").catch((e) => console.log(e));
     jsCookie.remove("authenticated");
     setIsAuthenticated(false);
     navigate("/login");
@@ -39,24 +39,36 @@ export default function Header({ isAuthenticated, setIsAuthenticated, toggleSide
   };
 
   const handleCreatePlaylist = () => {
-    setShowModal(true); // Open the modal when "Create Playlist" is clicked
+    setShowModal(true); 
   };
 
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
 
-  const dashboardButton = () => {
-    navigate("/dashboard")
+  const handleCreateVideo = () => {
+    navigate('/create-video')
   }
+
+  const handleSearch = () => {
+    if (searchQuery.trim() === "") {
+      resetVideos();
+    } else {
+      const filtered = videos.filter((video) =>
+        video.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setVideos(filtered);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   const handleSubmitPlaylist = async () => {
     try {
-      const res = await axios.post("/api/v1/playlist/", {
-        name: playlistName,
-        description: playlistDescription,
-      });
-      console.log("Playlist created successfully:", res.data.data);
       setShowModal(false);
       setShowDropdown(false);
       setPlaylistName("");
@@ -66,8 +78,6 @@ export default function Header({ isAuthenticated, setIsAuthenticated, toggleSide
     }
   };
 
-
-
   useEffect(() => {
     if (isAuthenticated) {
       const fetchUser = async () => {
@@ -75,7 +85,7 @@ export default function Header({ isAuthenticated, setIsAuthenticated, toggleSide
           const res = await axios.get("/api/v1/users/currentUser");
           setUser(res.data.data);
         } catch (error) {
-          console.error("Error fetching user data:", error);
+          console.error("Error fetching user:", error);
         }
       };
       fetchUser();
@@ -100,9 +110,15 @@ export default function Header({ isAuthenticated, setIsAuthenticated, toggleSide
           <input
             type="text"
             placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
             className="w-full bg-gray-800 text-white rounded-full pl-4 pr-12 py-2 focus:outline-none placeholder-gray-400"
           />
-          <button className="absolute right-0 top-0 bottom-0 flex items-center justify-center px-3 bg-gray-700 rounded-r-full">
+          <button
+            onClick={handleSearch}
+            className="absolute right-0 top-0 bottom-0 flex items-center justify-center px-3 bg-gray-700 rounded-r-full"
+          >
             <RiSearchLine size={20} className="text-white" />
           </button>
         </div>
@@ -124,6 +140,12 @@ export default function Header({ isAuthenticated, setIsAuthenticated, toggleSide
                     className="block w-full text-left px-4 py-2 hover:bg-gray-700"
                   >
                     Open Dashboard
+                  </button>
+                  <button
+                    onClick={handleCreateVideo}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-700"
+                  >
+                    Create Video
                   </button>
                   <button
                     onClick={handleCreatePlaylist}
@@ -151,7 +173,6 @@ export default function Header({ isAuthenticated, setIsAuthenticated, toggleSide
         )}
       </div>
 
-      {/* Modal for Creating Playlist */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
           <div className="bg-gray-800 text-white rounded-lg p-6 w-full max-w-md">

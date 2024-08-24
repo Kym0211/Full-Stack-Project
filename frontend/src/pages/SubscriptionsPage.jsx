@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import SideBar from "../utils/sideBar";
+import { useNavigate } from "react-router-dom";
 import { FaYoutube } from "react-icons/fa";
 import { RiMenu2Line } from "react-icons/ri";
+import { calculateDateDifference } from "../functions/Functions";
 
 export default function SubscriptionsPage({ isAuthenticated }) {
   const [subscriptions, setSubscriptions] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSubscriptions = async () => {
@@ -25,26 +29,9 @@ export default function SubscriptionsPage({ isAuthenticated }) {
     setSidebarOpen(!sidebarOpen);
   };
 
-  
-  function calculateDateDifference(dateString) {
-    const inputDate = new Date(dateString);
-    const today = new Date();
-    const diffInMillis = today - inputDate;
-    const diffInDays = Math.floor(diffInMillis / (1000 * 60 * 60 * 24));
-    const diffInHours = Math.floor(diffInMillis / (1000 * 60 * 60));
-    const diffInMinutes = Math.floor(diffInMillis / (1000 * 60));
-    const diffInSeconds = Math.floor(diffInMillis / 1000);
-
-    if (diffInDays >= 1) {
-      return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
-    } else if (diffInHours >= 1) {
-      return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
-    } else if (diffInMinutes >= 1) {
-      return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
-    } else {
-      return `${diffInSeconds} second${diffInSeconds !== 1 ? "s" : ""} ago`;
-    }
-  }
+  const playVideo = (videoId) => {
+    navigate(`/video/${videoId}`);
+  };
 
   return (
     <div className="w-screen min-h-screen bg-gray-900 text-white flex flex-col">
@@ -92,13 +79,30 @@ export default function SubscriptionsPage({ isAuthenticated }) {
                     subscription.videos.slice(0, 2).map((video) => (
                       <div
                         key={video._id}
-                        className="flex items-start bg-gray-700 p-2 rounded-lg mb-2"
+                        className="flex relative hover:cursor-pointer items-start bg-gray-700 p-2 rounded-lg mb-2"
+                        onClick={() => playVideo(video._id)}
                       >
                         <img
                           src={video.thumbnail}
                           alt={video.title}
                           className="w-32 h-20 object-cover mr-4 rounded"
                         />
+                        <button className="bg-black opacity-0 hover:opacity-100 absolute top-6 left-12 bg-opacity-50 text-white rounded-full p-3">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-6 w-6"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M14.752 11.168l-6.525-3.763A1 1 0 007 8.192v7.616a1 1 0 001.227.966l6.525-1.684a1 1 0 00.746-.966V12a1 1 0 00-.746-.832z"
+                              />
+                            </svg>
+                          </button>
                         <div>
                           <h3 className="text-lg font-semibold">{video.title}</h3>
                           <p className="text-sm text-gray-400">{calculateDateDifference(video.createdAt)}</p>

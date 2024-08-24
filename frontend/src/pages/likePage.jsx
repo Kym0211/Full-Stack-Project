@@ -1,14 +1,24 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { FaHeart, FaYoutube } from "react-icons/fa";
 import { RiMenu2Line } from "react-icons/ri";
 import SideBar from "../utils/sideBar"; 
+import { calculateDateDifference, formatDuration } from "../functions/Functions";
 
 export default function LikePage({ isAuthenticated }) {
   const [likes, setLikes] = useState([]);
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const navigate = useNavigate();
+
+  const playVideo =async (videoId) => {
+    const res = await axios.post(`/api/v1/users/saveHistory/${videoId}`);
+    const response = await axios.patch(`/api/v1/videos/views/${videoId}`);
+    navigate(`/video/${videoId}`);
+  };
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -63,7 +73,6 @@ export default function LikePage({ isAuthenticated }) {
             const videoExists = videos.some((video) => video[0]._id === like.video);
             if (!videoExists) {
               const res = await axios.get(`/api/v1/videos/${like.video}`);
-              console.log("Video data:", res.data.data.video);
               return res.data.data.video;
             }
           }
@@ -88,33 +97,6 @@ export default function LikePage({ isAuthenticated }) {
       fetchVideoData();
     }
   }, [likes]);
-  
-
-  function calculateDateDifference(dateString) {
-    const inputDate = new Date(dateString);
-    const today = new Date();
-    const diffInMillis = today - inputDate;
-    const diffInDays = Math.floor(diffInMillis / (1000 * 60 * 60 * 24));
-    const diffInHours = Math.floor(diffInMillis / (1000 * 60 * 60));
-    const diffInMinutes = Math.floor(diffInMillis / (1000 * 60));
-    const diffInSeconds = Math.floor(diffInMillis / 1000);
-
-    if (diffInDays >= 1) {
-      return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
-    } else if (diffInHours >= 1) {
-      return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
-    } else if (diffInMinutes >= 1) {
-      return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
-    } else {
-      return `${diffInSeconds} second${diffInSeconds !== 1 ? "s" : ""} ago`;
-    }
-  }
-
-  function formatDuration(duration) {
-    const mins = Math.floor(duration);
-    const secs = Math.floor((duration - mins) * 60);
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
-  }
 
   return (
     <div className="w-screen min-h-screen bg-gray-900 text-white flex flex-col">
@@ -141,10 +123,27 @@ export default function LikePage({ isAuthenticated }) {
         ) : (
           <ul className="space-y-4">
             {videos.map((video) => (
-              <li
+              <div
                 key={video[0]._id}
-                className="flex items-start bg-gray-800 p-4 rounded-lg shadow-lg"
+                className="flex relative items-start bg-gray-800 p-4 rounded-lg shadow-lg"
+                onClick={() => playVideo(video[0]._id)}
               >
+                <button className="bg-black opacity-0 hover:opacity-100 absolute top-11 left-20 bg-opacity-50 text-white rounded-full p-3">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M14.752 11.168l-6.525-3.763A1 1 0 007 8.192v7.616a1 1 0 001.227.966l6.525-1.684a1 1 0 00.746-.966V12a1 1 0 00-.746-.832z"
+                    />
+                  </svg>
+                </button>
                 <img
                   src={video[0].thumbnail}
                   alt={video[0].title}
@@ -168,7 +167,7 @@ export default function LikePage({ isAuthenticated }) {
                     className="w-10 h-10 rounded-full"
                   />
                 </div>
-              </li>
+              </div>
             ))}
           </ul>
         )}

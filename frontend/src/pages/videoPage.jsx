@@ -25,6 +25,14 @@ export default function VideoPage({ isAuthenticated, setIsAuthenticated }) {
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const [newPlaylistDescription, setNewPlaylistDescription] = useState("");
 
+  const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  };
+
 
   useEffect(() => {
     const checkLike = async (videoId) => {
@@ -58,8 +66,8 @@ export default function VideoPage({ isAuthenticated, setIsAuthenticated }) {
     const fetchVideo = async () => {
       try {
         const res = await axios.get(`/api/v1/videos/${videoId}`);
-        const videoData = res.data.data.video[0];
-        setVideo(videoData);
+        const ShuffledvideoData = shuffleArray(res.data.data.video[0]);
+        setVideo(ShuffledvideoData);
   
         if (videoData && videoData.owner_details) {
           checkSubscription(videoData.owner_details._id);
@@ -268,63 +276,64 @@ export default function VideoPage({ isAuthenticated, setIsAuthenticated }) {
 
       {/* Playlist Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-40">
-          <div className="bg-white text-black p-6 rounded-lg w-96">
-            <h2 className="text-lg font-semibold mb-4">Save to Playlist</h2>
+      <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-50">
+        <div className="bg-gray-800 text-white rounded-lg p-6 w-full max-w-md">
+          <h2 className="text-xl font-bold mb-4">Save to Playlist</h2>
 
-            {/* Existing Playlists */}
-            <div className="space-y-2">
-              {playlists.map((playlist) => (
-                <div key={playlist._id} className="flex items-center">
-                  <input
-                    type="radio"
-                    name="playlist"
-                    value={playlist._id}
-                    checked={selectedPlaylistId === playlist._id}
-                    onChange={() => setSelectedPlaylistId(playlist._id)}
-                    className="mr-2"
-                  />
-                  <label>{playlist.name}</label>
-                </div>
-              ))}
-            </div>
+          {/* Existing Playlists */}
+          <div className="space-y-2">
+            {playlists.map((playlist) => (
+              <div key={playlist._id} className="flex items-center">
+                <input
+                  type="radio"
+                  name="playlist"
+                  value={playlist._id}
+                  checked={selectedPlaylistId === playlist._id}
+                  onChange={() => setSelectedPlaylistId(playlist._id)}
+                  className="mr-2 accent-blue-500"
+                />
+                <label className="text-white">{playlist.name}</label>
+              </div>
+            ))}
+          </div>
 
-            {/* New Playlist */}
-            <div className="mt-4">
-              <input
-                type="text"
-                placeholder="New Playlist Name"
-                value={newPlaylistName}
-                onChange={(e) => setNewPlaylistName(e.target.value)}
-                className="w-full mb-3 p-2 border rounded"
-              />
-              <input
-                type="text"
-                placeholder="New Playlist Description"
-                value={newPlaylistDescription}
-                onChange={(e) => setNewPlaylistDescription(e.target.value)}
-                className="w-full p-2 border rounded"
-              />
-            </div>
+          {/* New Playlist */}
+          <div className="mt-4">
+            <input
+              type="text"
+              placeholder="New Playlist Name"
+              value={newPlaylistName}
+              onChange={(e) => setNewPlaylistName(e.target.value)}
+              className="w-full mb-3 bg-gray-700 text-white rounded-lg px-3 py-2 focus:outline-none"
+            />
+            <textarea
+              placeholder="New Playlist Description"
+              value={newPlaylistDescription}
+              onChange={(e) => setNewPlaylistDescription(e.target.value)}
+              className="w-full bg-gray-700 text-white rounded-lg px-3 py-2 focus:outline-none"
+              rows="3"
+            />
+          </div>
 
-            {/* Modal Buttons */}
-            <div className="flex justify-end space-x-2 mt-4">
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="py-2 px-4 bg-gray-300 rounded"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveToPlaylist}
-                className="py-2 px-4 bg-blue-600 text-white rounded"
-              >
-                Save
-              </button>
-            </div>
+          {/* Modal Buttons */}
+          <div className="flex justify-end space-x-4 mt-4">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-500 transition duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveToPlaylist}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-500 transition duration-200"
+            >
+              Save
+            </button>
           </div>
         </div>
-      )}
+      </div>
+    )}
+
     </div>
   );
 }
